@@ -1,7 +1,7 @@
 {% extends "bootstrap/base.html" %}
 
 {% block content %}
-<html lang="en">  
+<html lang="en">
   <head>
   <title>Sudoku Solver</title>
 
@@ -23,7 +23,7 @@
       <div class="jumbotron">
         <h1>Just try uploading a sudoko photo here and see what happens...</h1>
 
-        <form name='upload' action='upload' placeholder='upload' method='POST'>
+        <form name='upload' action='upload' placeholder='upload' method='POST' enctype="multipart/form-data">
 
           <input type='file' name='userFile'><br>
           <input type="submit" value="Upload the photo" class="submitButton"/>
@@ -32,6 +32,6 @@
     </div> <!-- /container -->
 
    </body>
-   
+
 </html>
 {% endblock %}

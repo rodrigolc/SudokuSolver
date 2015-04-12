@@ -4,16 +4,6 @@ import cv2,sys
 import numpy as np
 from PIL import Image
 from pytesseract import image_to_string
-if not len(sys.argv) == 2:
-    print("Wrong number of arguments")
-    sys.exit(1)
-
-filename = sys.argv[1]
-
-image = cv2.imread(filename)
-if 0 == len(image):
-    print("couldn't load image.")
-    sys.exit(1)
 
 def dist_line(p1,p2,p3):
     x1,y1 = p1[0]
@@ -113,6 +103,7 @@ def get_number(image):
     image2 = image.copy()
     contours, hierarchy = cv2.findContours(image2, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_L1)
     closest = None
+    flag = False
     max_dist = 500 #outside of 100x100 image
     arr = []
     for i in contours:
@@ -121,9 +112,10 @@ def get_number(image):
         peri = cv2.arcLength(i,True)
         # dist = cv2.pointPolygonTest(i,(len(image)/2,len(image[0])),True)
         if peri > 100 and dist < max_dist and dist < 40:
+            flag = True
             max_dist = dist
             closest = i
-    if closest == None:
+    if not flag:
         return None
     arr.append(closest)
     # dst_bounds = np.array([ [0,0],[19,0],[19,19],[0,19] ],np.float32)
@@ -139,43 +131,50 @@ def contour_mask(image,contour):
     res = cv2.bitwise_and(image,image,mask = mask)
     return res
 
-warp = get_tile(image)
+def get_numbers(image):
+    warp = get_tile(image)
 
-bw = to_binary(warp)
-#
-# cv2.imshow("bw",bw)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+    bw = to_binary(warp)
+    #
+    # cv2.imshow("bw",bw)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-sudoku = []
-for i in range(9):
-    ln = []
-    for j in range(9):
-        ln.append(bw[i*100:(i+1)*100, j*100:(j+1)*100 ])
-    sudoku.append(ln)
+    sudoku = []
+    for i in range(9):
+        ln = []
+        for j in range(9):
+            ln.append(bw[i*100:(i+1)*100, j*100:(j+1)*100 ])
+        sudoku.append(ln)
 
-knn = train()
-nimg = np.zeros((900,900,3), np.uint8)
+    # knn = train()
+    nimg = np.zeros((900,900,3), np.uint8)
 
-sudoku_contour = []
-for i in range(9):
-    ln = []
-    for j in range(9):
-        im = get_number(sudoku[i][j])
-        ln.append(im)
-    sudoku_contour.append(ln)
+    sudoku_contour = []
+    for i in range(9):
+        ln = []
+        for j in range(9):
+            im = get_number(sudoku[i][j])
+            ln.append(im)
+        sudoku_contour.append(ln)
 
-numbers = []
-for i in range(9):
-    ln = []
-    for j in range(9):
-        if sudoku_contour[i][j] == None:
-            ln.append(0)
-        else:
-            im = contour_mask(sudoku[i][j],sudoku_contour[i][j])
-            result = image_to_string(Image.fromarray(im),config="-psm 6")
-            # im = cv2.resize(im,(20,20))
-            # (result,_,_,_) = knn.find_nearest(im.reshape(-1,400).astype(np.float32),5)
-            ln.append(result)
-    print ln
-    numbers.append(ln)
+    numbers = []
+    for i in range(9):
+        ln = []
+        for j in range(9):
+            if sudoku_contour[i][j] == None:
+                ln.append(0)
+            else:
+                im = contour_mask(sudoku[i][j],sudoku_contour[i][j])
+                result = image_to_string(Image.fromarray(im),config="-psm 6")
+                # im = cv2.resize(im,(20,20))
+                # (result,_,_,_) = knn.find_nearest(im.reshape(-1,400).astype(np.float32),5)
+                ln.append(int(result))
+        numbers.append(ln)
+
+    return numbers,warp
+
+def print_numbers(image,numbers):
+    for i in range(9):
+        for j in range(9):
+            cv2.putText(image,"%d" % ( int(numbers[i][j]) ) ,(30 + 100*j,80+100*i),1,5,(0,0,255),5)
