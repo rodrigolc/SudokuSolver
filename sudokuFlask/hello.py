@@ -17,7 +17,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 app = Flask(__name__)
 Bootstrap(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.debug=True
+app.debug=False
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -56,4 +56,4 @@ def uploaded_file(filename):
                                filename)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=80)
