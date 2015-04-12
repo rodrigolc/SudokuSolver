@@ -1,0 +1,37 @@
+{% extends "bootstrap/base.html" %}
+
+{% block content %}
+<html lang="en">  
+  <head>
+  <title>Sudoku Solver</title>
+
+    <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="jumbotron-narrow.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+  </br>
+  </br>
+  <div class="container">
+      <div class="header clearfix"
+        <h3 class="text-muted">Sudoku Solver</h3>
+      </div>
+
+      <div class="jumbotron">
+        <h1>Just try uploading a sudoko photo here and see what happens...</h1>
+
+        <form name='upload' action='upload' placeholder='upload' method='POST'>
+
+          <input type='file' name='userFile'><br>
+          <input type="submit" value="Upload the photo" class="submitButton"/>
+        </form>
+
+    </div> <!-- /container -->
+
+   </body>
+   
+</html>
+{% endblock %}
